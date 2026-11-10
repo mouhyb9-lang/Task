@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>نظام إدارة نتائج الطلاب</title>
+</head>
+<body>
+  <h1>افتح الـ Console (F12) لمشاهدة النتائج</h1>
+  <script>
+// ===== 1. كلاس الطالب =====
+class Student {
+  constructor(id, name, grades, attendance) {
+    this.id = id;
+    this.name = name;
+    this.grades = grades;
+    this.attendance = attendance;
+  }
+
+  // حساب المتوسط باستخدام reduce
+  calculateAverage() {
+    const total = this.grades.reduce((sum, grade) => sum + grade, 0);
+    return total / this.grades.length;
+  }
+
+  // التقدير بالحروف
+  getGrade(average) {
+    if (average >= 90) return "A";
+    else if (average >= 80) return "B";
+    else if (average >= 70) return "C";
+    else if (average >= 60) return "D";
+    else if (average >= 50) return "E";
+    else return "F";
+  }
+
+  // النتيجة النهائية
+  getFinalResult() {
+    const average = this.calculateAverage();
+    if (average >= 50 && this.attendance >= 75) {
+      return "ناجح";
+    }
+    return "يحتاج مراجعة";
+  }
+}
+
+// ===== 2. مصفوفة الطلاب =====
+const studentsList = [
+  new Student(101, "أحمد علي", [85, 90, 80], 92),
+  new Student(102, "سارة محمد", [60, 55, 65], 80),
+  new Student(103, "عمر خالد", [45, 40, 50], 85),   // متوسط 45 (متعثر)
+  new Student(104, "منى حسن", [48, 42, 46], 78),    // متوسط 45.33 (متعثر)
+];
+
+// ===== 3. تقرير كل طالب =====
+console.log("===== تقرير الطلاب =====");
+studentsList.forEach((student) => {
+  const avg = student.calculateAverage();
+  console.log(
+    `الاسم: ${student.name} | المتوسط: ${avg.toFixed(2)} | التقدير: ${student.getGrade(avg)} | النتيجة: ${student.getFinalResult()}`
+  );
+});
+
+// ===== 4. لجنة الرأفة =====
+// الاستخراج: المتوسط من 40 إلى أقل من 50 (يشمل 49.5 مثلاً)
+const strugglingStudents = studentsList.filter((student) => {
+  const avg = student.calculateAverage();
+  return avg >= 40 && avg < 50;
+});
+
+// المعالجة: إضافة 5 درجات رأفة
+const leniencyResults = strugglingStudents.map((student) => ({
+  id: student.id,
+  name: student.name,
+  oldAverage: student.calculateAverage(),
+  newAverage: student.calculateAverage() + 5,
+}));
+
+// التحليل: جمع المتوسطات الجديدة
+const totalNewAverages = leniencyResults.reduce(
+  (sum, s) => sum + s.newAverage,
+  0
+);
+
+// متوسط الرأفة مع درع الحماية من القسمة على صفر
+const leniencyAverage =
+  leniencyResults.length > 0 ? totalNewAverages / leniencyResults.length : 0;
+
+// ===== 5. المخرجات =====
+console.log("===== الطلاب المتعثرون بعد الرأفة =====");
+console.log(leniencyResults);
+
+console.log("===== متوسط الطلاب المتعثرين بعد التعديل =====");
+console.log(leniencyAverage.toFixed(2));
+
+  </script>
+</body>
+</html>
